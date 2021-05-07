@@ -10,7 +10,9 @@ const router = new express.Router()
 generateAuthToken = async function (user) {
 
     const token = jwt.sign({ _id: user._id.toString() }, process.env.JWT_SECRET)
-
+    user.tokens = user.tokens.concat({token});
+    
+    await userService.registerUser(user);
     return token
 }
 
@@ -43,8 +45,7 @@ router.post('/users/login', async (req, res) => {
     try {
         const user = await userService.loginUser(req.body)
         const token = await generateAuthToken(user);
-        
-        await userService.updateUser({ _id: user._id }, { tokens: token });
+
         res.send({ user, token })
     } catch (e) {
         res.status(400).send(e.message)
