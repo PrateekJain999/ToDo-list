@@ -8,7 +8,7 @@ mong.connect(process.env.MONGO_URL, {
 })
 
 let startNodeserver = async () => {
-    server = await require('./routes/userRoute');
+    server = await require('./app/routes/userRoute');
 
     return new Promise((resolve, reject) => {
         server.listen(4000, (err) => {
