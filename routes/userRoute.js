@@ -11,7 +11,7 @@ generateAuthToken = async function (user) {
 
     const token = jwt.sign({ _id: user._id.toString() }, process.env.JWT_SECRET)
     user.tokens = user.tokens.concat({token});
-    
+
     await userService.registerUser(user);
     return token
 }
@@ -58,7 +58,7 @@ router.post('/users/logout', auth, async (req, res) => {
         req.user.tokens = req.user.tokens.filter((token) => {
             return token.token !== req.token
         })
-        userService.updateUser(req.user)
+        userService.registerUser(req.user)
 
         res.send()
     } catch (e) {

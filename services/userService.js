@@ -30,22 +30,22 @@ userService.getUser = async (criteria) => {
 /**
  * function to create new user into the system.
  */
-userService.createUser = async (payload) => {
-    // fetch initial rank type and rank value for new user. 
-    let defaultRankType = await rankTypeModel.findOne({ isDefault: true, isDeleted: false });
-    payload.rankType = defaultRankType._id;
-    payload.rankValue = defaultRankType.maxRank;
-    return await userModel(payload).save();
-};
+// userService.createUser = async (payload) => {
+//     // fetch initial rank type and rank value for new user. 
+//     let defaultRankType = await rankTypeModel.findOne({ isDefault: true, isDeleted: false });
+//     payload.rankType = defaultRankType._id;
+//     payload.rankValue = defaultRankType.maxRank;
+//     return await userModel(payload).save();
+// };
 
 
-userService.addUsers = async (userIds, teacher_email) => {
-    return await userModel.aggregate([
-        { $match: { _id: { $in: userIds } } },
-        { $set: { assign_teacher: { $concatArrays: ['$assign_teacher', [teacher_email]] } } },
-        { $project: { assign_teacher: { $setIntersection: ["$assign_teacher", "$assign_teacher"] } } },
-        { $merge: { into: 'users' } }
-    ])
-};
+// userService.addUsers = async (userIds, teacher_email) => {
+//     return await userModel.aggregate([
+//         { $match: { _id: { $in: userIds } } },
+//         { $set: { assign_teacher: { $concatArrays: ['$assign_teacher', [teacher_email]] } } },
+//         { $project: { assign_teacher: { $setIntersection: ["$assign_teacher", "$assign_teacher"] } } },
+//         { $merge: { into: 'users' } }
+//     ])
+// };
 
 module.exports = userService;
