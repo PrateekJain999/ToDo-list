@@ -7,5 +7,5 @@ module.exports = async () => {
         useUnifiedTopology: true
     };
     await mongoose.connect(process.env.MONGO_URL, options);
-    console.log('Mongo connected at ', process.env.MONGO_URL);
+    console.log('Mongo connected at mongo atlas');
 };
