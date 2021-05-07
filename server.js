@@ -1,14 +1,11 @@
-const mong = require('mongoose');
 require('dotenv').config();
+const EXPRESS = require("express");
+const app = EXPRESS();
 
-mong.connect(process.env.MONGO_URL, {
-    useNewUrlParser: true,
-    useCreateIndex: true,
-    useUnifiedTopology: true
-})
+const server = require('http').Server(app);
 
 let startNodeserver = async () => {
-    server = await require('./app/routes/userRoute');
+    await require('./app/startup/expressStartup')(app);
 
     return new Promise((resolve, reject) => {
         server.listen(4000, (err) => {

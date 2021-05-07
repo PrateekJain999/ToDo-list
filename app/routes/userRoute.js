@@ -1,9 +1,7 @@
-const express = require('express');
-const server = express();
-const jwt = require('jsonwebtoken')
-var bodyParser = require('body-parser')
+const jwt = require('jsonwebtoken');
 const userService = require('../services/userService')
 const {auth, joiValidation} = require('../middleware/userMiddleware')
+const express = require('express');
 const router = new express.Router()
 
 generateAuthToken = async function (user) {
@@ -14,8 +12,6 @@ generateAuthToken = async function (user) {
     await userService.registerUser(user);
     return token
 }
-
-server.use(bodyParser.json())
 
 router.post('/users/signup', joiValidation, async (req, res) => {
     try {
@@ -93,6 +89,4 @@ router.delete('/users/me', auth, async (req, res) => {
     }
 })
 
-server.use(router)
-
-module.exports = server;
+module.exports = router;
