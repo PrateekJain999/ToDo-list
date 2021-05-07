@@ -1,5 +1,6 @@
-const jwt = require('jsonwebtoken')
-const User = require('../models/userModel')
+const jwt = require('jsonwebtoken');
+const User = require('../models/userModel');
+const joiSchema = require('../services/joiValidation');
 
 const auth = async (req, res, next) => {
     try {
@@ -19,4 +20,20 @@ const auth = async (req, res, next) => {
     }
 }
 
-module.exports = auth
+const joiValidation = function (req, res, next) {
+    req.body.gender = req.body.gender.toLowerCase();
+
+    const data = joiSchema.validate(req.body);
+
+    if (data.error) {
+        res.end(data.error.message);
+    }
+    else {
+        next();
+    }
+}
+
+module.exports = {
+    auth,
+    joiValidation
+}

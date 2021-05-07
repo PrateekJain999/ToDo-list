@@ -2,9 +2,8 @@ const express = require('express');
 const server = express();
 const jwt = require('jsonwebtoken')
 var bodyParser = require('body-parser')
-const joiSchema = require('../services/joiValidation');
 const userService = require('../services/userService')
-const auth = require('../middleware/userMiddleware')
+const {auth, joiValidation} = require('../middleware/userMiddleware')
 const router = new express.Router()
 
 generateAuthToken = async function (user) {
@@ -16,23 +15,9 @@ generateAuthToken = async function (user) {
     return token
 }
 
-validation = function (req, res, next) {
-    req.body.gender = req.body.gender.toLowerCase();
-
-    const data = joiSchema.validate(req.body);
-
-    if (data.error) {
-        res.end(data.error.message);
-    }
-    else {
-        next();
-    }
-}
-
-
 server.use(bodyParser.json())
 
-router.post('/users/signup', validation, async (req, res) => {
+router.post('/users/signup', joiValidation, async (req, res) => {
     try {
         const user = await userService.registerUser(req.body);
         res.send(user);
@@ -76,37 +61,37 @@ router.post('/users/logoutAll', auth, async (req, res) => {
     }
 })
 
-// router.get('/users/me', auth, async (req, res) => {
-//     res.send(req.user)
-// })
+router.get('/users/me', auth, async (req, res) => {
+    res.send(req.user)
+})
 
-// router.patch('/users/me', auth, async (req, res) => {
-//     const updates = Object.keys(req.body)
-//     const allowedUpdates = ['name', 'email', 'password', 'age']
-//     const isValidOperation = updates.every((update) => allowedUpdates.includes(update))
+router.patch('/users/me', auth, async (req, res) => {
+    const updates = Object.keys(req.body)
+    const allowedUpdates = ['firstname', 'lastname', 'email', 'password', 'age', 'gender']
+    const isValidOperation = updates.every((update) => allowedUpdates.includes(update))
 
-//     if (!isValidOperation) {
-//         return res.status(400).send({ error: 'Invalid updates!' })
-//     }
+    if (!isValidOperation) {
+        return res.status(400).send({ error: 'Invalid updates!' })
+    }
 
-//     try {
-//         updates.forEach((update) => req.user[update] = req.body[update])
-//         await req.user.save()
-//         res.send(req.user)
-//     } catch (e) {
-//         res.status(400).send(e)
-//     }
-// })
+    try {
+        updates.forEach((update) => req.user[update] = req.body[update])
+        await req.user.save()
+        res.send(req.user)
+    } catch (e) {
+        res.status(400).send(e)
+    }
+})
 
-// router.delete('/users/me', auth, async (req, res) => {
-//     try {
-//         await req.user.remove()
-//         sendCancelationEmail(req.user.email, req.user.name)
-//         res.send(req.user)
-//     } catch (e) {
-//         res.status(500).send()
-//     }
-// })
+router.delete('/users/me', auth, async (req, res) => {
+    try {
+        await req.user.remove()
+        // sendCancelationEmail(req.user.email, req.user.name)
+        res.send(req.user)
+    } catch (e) {
+        res.status(500).send()
+    }
+})
 
 server.use(router)
 
