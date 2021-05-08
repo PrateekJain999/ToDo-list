@@ -1,29 +1,30 @@
 const jwt = require('jsonwebtoken');
 const userService = require('../services/userService')
-const {auth, joiValidation} = require('../middleware/userMiddleware')
+const { auth, joiValidation } = require('../middleware/userMiddleware')
 const sendMail = require('../utils/emailService')
+const commonFunctions = require('../utils/utils');
 const express = require('express');
 const router = new express.Router()
 
-generateAuthToken = async function (user) {
+// generateAuthToken = async function (user) {
 
-    const token = jwt.sign({ _id: user._id.toString() }, process.env.JWT_SECRET)
-    user.tokens = user.tokens.concat({token});
+//     const token = jwt.sign({ _id: user._id.toString() }, process.env.JWT_SECRET)
+//     user.tokens = user.tokens.concat({ token });
 
-    await userService.registerUser(user);
-    return token
-}
+//     await userService.registerUser(user);
+//     return token
+// }
 
 router.post('/users/signup', joiValidation, async (req, res) => {
     try {
-        const User = await userService.getUser({email: req.body.email});
+        const User = await userService.getUser({ email: req.body.email });
 
-        if(User){
+        if (User) {
             throw new Error('user Already exists');
         }
 
         const user = await userService.registerUser(req.body);
-        sendMail({name: `${user.firstname} ${user.lastname}`, to: user.email, text: 'Thank For Subscribing us.', subject: 'welcome'});
+        sendMail({ name: `${user.firstname} ${user.lastname}`, to: user.email, text: 'Thank For Subscribing us.', subject: 'welcome' });
         res.send(user);
     } catch (e) {
         res.status(400).send(e.message)
@@ -32,10 +33,23 @@ router.post('/users/signup', joiValidation, async (req, res) => {
 
 router.post('/users/login', async (req, res) => {
     try {
-        const user = await userService.loginUser(req.body)
-        const token = await generateAuthToken(user);
+        const user = await userService.getUser({ email: req.body.email })
+        console.log(user)
+        if (user) {
+            if (commonFunctions.compareHash(req.body.password, user.password)) {
 
-        res.send({ user, token })
+                const token = commonFunctions.encryptJwt({ _id: user._id.toString() })
+                user.tokens = user.tokens.concat({ token });
+                await userService.registerUser(user);
+
+                delete user.password;
+                delete user.tokens;
+
+                res.send({ user, token })
+            }
+            throw new Error('password not same');
+        }
+        throw new Error('user not exists');
     } catch (e) {
         res.status(400).send(e.message)
     }
@@ -90,7 +104,7 @@ router.patch('/users/me', auth, async (req, res) => {
 router.delete('/users/me', auth, async (req, res) => {
     try {
         await req.user.remove()
-        sendMail({name: `${req.user.firstname} ${req.user.lastname}`, to: req.user.email, text: 'Welcome Back Soon.', subject: 'Account Deleted'});
+        sendMail({ name: `${req.user.firstname} ${req.user.lastname}`, to: req.user.email, text: 'Welcome Back Soon.', subject: 'Account Deleted' });
         res.send(req.user)
     } catch (e) {
         res.status(500).send()

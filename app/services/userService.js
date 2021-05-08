@@ -1,14 +1,12 @@
 const userModel = require('../models/userModel')
+const commonFunctions = require('../utils/utils');
+
 userService = {};
 
 userService.registerUser = async (payload) => {
     // encrypt user's password and store it in the database.
-    // payload.password = utils.hashPassword(payload.password);
+    payload.password = commonFunctions.hashPassword(payload.password);
     return await userModel(payload).save();
-};
-
-userService.loginUser = async (payload) => {
-    return await userModel.findOne(payload)
 };
 
 /**
