@@ -13,7 +13,7 @@ userService.registerUser = async (payload) => {
  * function to update user.
  */
 userService.updateUser = async (criteria, dataToUpdate) => {
-    let userData = await userService.getUser(criteria);
+    // let userData = await userService.getUser(criteria);
     return await userModel.findOneAndUpdate(criteria, dataToUpdate);
 };
 

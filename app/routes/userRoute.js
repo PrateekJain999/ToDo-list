@@ -25,18 +25,20 @@ router.post('/users/signup', joiValidation, async (req, res) => {
 router.post('/users/login', async (req, res) => {
     try {
         const user = await userService.getUser({ email: req.body.email });
-        console.log(commonFunctions.compareHash(req.body.password, user.password));
+        let tokens = user.tokens;
+
         if (user) {
             if (commonFunctions.compareHash(req.body.password, user.password)) {
 
                 const token = commonFunctions.encryptJwt({ _id: user._id.toString() })
-                user.tokens = user.tokens.concat({ token });
-                await userService.registerUser(user);
+                tokens.push({token});
+
+                await userService.updateUser({ email: user.email }, { tokens });
 
                 // delete user.password;
                 // delete user.tokens;
 
-                res.end({ user, token })
+                res.json({ user, token })
             }
             else {
                 throw new Error('password not same');
@@ -53,7 +55,6 @@ router.post('/users/login', async (req, res) => {
 
 router.post('/users/logout', auth, async (req, res) => {
     try {
-        // console.log(req)
         req.user.tokens = req.user.tokens.filter((token) => {
             return token.token !== req.token
         })
