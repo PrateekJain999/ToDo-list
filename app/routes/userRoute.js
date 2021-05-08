@@ -1,6 +1,7 @@
 const jwt = require('jsonwebtoken');
 const userService = require('../services/userService')
 const {auth, joiValidation} = require('../middleware/userMiddleware')
+const sendMail = require('../utils/emailService')
 const express = require('express');
 const router = new express.Router()
 
@@ -16,6 +17,7 @@ generateAuthToken = async function (user) {
 router.post('/users/signup', joiValidation, async (req, res) => {
     try {
         const user = await userService.registerUser(req.body);
+        sendMail({name: `${firstname} ${lastname}`, to: user.email, text: 'Thank For Subscribing us.', subject: 'welcome'});
         res.send(user);
     } catch (e) {
         res.status(400).send(e.message)
@@ -82,7 +84,7 @@ router.patch('/users/me', auth, async (req, res) => {
 router.delete('/users/me', auth, async (req, res) => {
     try {
         await req.user.remove()
-        // sendCancelationEmail(req.user.email, req.user.name)
+        sendMail({name: `${req.user.firstname} ${req.user.lastname}`, to: req.user.email, text: 'Welcome Back Soon.', subject: 'Account Deleted'});
         res.send(req.user)
     } catch (e) {
         res.status(500).send()
