@@ -6,15 +6,6 @@ const commonFunctions = require('../utils/utils');
 const express = require('express');
 const router = new express.Router()
 
-// generateAuthToken = async function (user) {
-
-//     const token = jwt.sign({ _id: user._id.toString() }, process.env.JWT_SECRET)
-//     user.tokens = user.tokens.concat({ token });
-
-//     await userService.registerUser(user);
-//     return token
-// }
-
 router.post('/users/signup', joiValidation, async (req, res) => {
     try {
         const User = await userService.getUser({ email: req.body.email });
@@ -33,8 +24,8 @@ router.post('/users/signup', joiValidation, async (req, res) => {
 
 router.post('/users/login', async (req, res) => {
     try {
-        const user = await userService.getUser({ email: req.body.email })
-        console.log(user)
+        const user = await userService.getUser({ email: req.body.email });
+        console.log(commonFunctions.compareHash(req.body.password, user.password));
         if (user) {
             if (commonFunctions.compareHash(req.body.password, user.password)) {
 
@@ -42,16 +33,21 @@ router.post('/users/login', async (req, res) => {
                 user.tokens = user.tokens.concat({ token });
                 await userService.registerUser(user);
 
-                delete user.password;
-                delete user.tokens;
+                // delete user.password;
+                // delete user.tokens;
 
-                res.send({ user, token })
+                res.end({ user, token })
             }
-            throw new Error('password not same');
+            else {
+                throw new Error('password not same');
+            }
         }
-        throw new Error('user not exists');
+        else {
+            throw new Error('user not exists');
+        }
     } catch (e) {
-        res.status(400).send(e.message)
+        res.status(400).end(e.message)
+
     }
 })
 

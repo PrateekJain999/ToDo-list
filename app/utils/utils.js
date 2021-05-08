@@ -5,7 +5,8 @@ const JWT = require("jsonwebtoken");
 let commonFunctions = {};
 
 commonFunctions.hashPassword = (payloadString) => {
-  return BCRYPT.hashSync(payloadString, 8);
+  const salt = BCRYPT.genSaltSync(8);
+  return BCRYPT.hashSync(payloadString, salt);
 };
 
 commonFunctions.compareHash = (payloadPassword, userPassword) => {
