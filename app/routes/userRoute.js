@@ -16,8 +16,14 @@ generateAuthToken = async function (user) {
 
 router.post('/users/signup', joiValidation, async (req, res) => {
     try {
+        const User = await userService.getUser({email: req.body.email});
+
+        if(User){
+            throw new Error('user Already exists');
+        }
+
         const user = await userService.registerUser(req.body);
-        sendMail({name: `${firstname} ${lastname}`, to: user.email, text: 'Thank For Subscribing us.', subject: 'welcome'});
+        sendMail({name: `${user.firstname} ${user.lastname}`, to: user.email, text: 'Thank For Subscribing us.', subject: 'welcome'});
         res.send(user);
     } catch (e) {
         res.status(400).send(e.message)

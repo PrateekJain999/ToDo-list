@@ -26,6 +26,10 @@ userService.getUser = async (criteria) => {
     return await userModel.findOne(criteria)
 };
 
+userService.getUsers = async (criteria) => {
+    return await userModel.find(criteria)
+};
+
 
 /**
  * function to create new user into the system.
