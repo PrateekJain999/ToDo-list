@@ -32,8 +32,9 @@ noteService.readNote = async (criteria, projection = {}) => {
 /**
  * function to read notes.
  */
-noteService.readNotes = async (criteria) => {
-    return await noteModel.find(criteria)
+noteService.readNotes = async (ids, userId) => {
+    return await noteModel.aggregate([{$match:{$and: [ {_id: {$in: ids}}, {userId: userId} ] } }])
+
 };
 
 module.exports = noteService;

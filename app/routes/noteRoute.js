@@ -15,7 +15,7 @@ router.post('/notes/create', auth, async (req, res) => {
             taskName: req.body.taskName,
             content: req.body.content
         });
-        
+
         res.send(note);
     } catch (e) {
         res.status(400).send(e.message)
@@ -27,9 +27,9 @@ router.patch('/notes/update', auth, async (req, res) => {
         let id = new ObjectId(req.body.id);
         delete req.body.id;
 
-        let note = await noteService.updateNote({_id: id, userId: req.user._id}, req.body);
+        let note = await noteService.updateNote({ _id: id, userId: req.user._id }, req.body);
         console.log(note)
-        res.json({success: true, note});
+        res.json({ success: true, note });
     } catch (e) {
         res.status(400).end(e.message)
 
@@ -39,7 +39,7 @@ router.patch('/notes/update', auth, async (req, res) => {
 router.delete('/notes/delete', auth, async (req, res) => {
     try {
         let id = new ObjectId(req.body.id);
-        await noteService.deleteNote({ _id: req.user._id , _id: id});
+        await noteService.deleteNote({ _id: req.user._id, _id: id });
 
         res.json({ success: true })
     } catch (e) {
@@ -58,10 +58,13 @@ router.get('/notes/Read', auth, async (req, res) => {
 })
 
 router.get('/notes/Reads', auth, async (req, res) => {
-
-    delete req.user.password;
-    delete req.user.tokens;
-    res.send(req.user)
+    try {
+        let ids = req.body.ids.map(id => new ObjectId(id));
+        let note = await noteService.readNotes(ids, req.user._id );
+        res.send({ success: true, note });
+    } catch (e) {
+        res.status(500).send(e.message)
+    }
 })
 
 module.exports = router;
