@@ -1,8 +1,7 @@
 const jwt = require('jsonwebtoken');
-const User = require('../models/userModel');
-const joiSchema = require('../utils/joiValidation')
-const commonFunctions = require('../utils/utils')
-const userService = require('../services/userService')
+const User = require('../models/Todo/userModel');
+const {sendMail, joiSchema, commonFunctions} = require('../utils/index');
+const {userService, noteService} = require('../services/index');
 
 const auth = async (req, res, next) => {
     try {

@@ -1,5 +1,5 @@
-const userModel = require('../models/userModel')
-const commonFunctions = require('../utils/utils');
+const {userModel, noteModel} = require('../../models/index');
+const commonFunctions = require('../../utils/utils');
 
 userService = {};
 

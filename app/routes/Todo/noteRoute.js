@@ -1,14 +1,12 @@
 const jwt = require('jsonwebtoken');
-const userService = require('../services/userService')
-const moteService = require('../services/noteService')
-const { auth, joiValidation } = require('../middleware/userMiddleware')
-const sendMail = require('../utils/emailService')
-const commonFunctions = require('../utils/utils');
+const {userService, noteService} = require('../../services/index');
+const { auth, joiValidation } = require('../../middleware/userMiddleware');
+const {sendMail, joiSchema, commonFunctions} = require('../../utils/index');
 const express = require('express');
 const ObjectId = require('mongodb').ObjectId;
-const router = new express.Router()
+const noteRouters = new express.Router()
 
-router.post('/notes/create', auth, async (req, res) => {
+noteRouters.post('/notes/create', auth, async (req, res) => {
     try {
         let note = await noteService.createNote({
             userId: req.user._id,
@@ -22,7 +20,7 @@ router.post('/notes/create', auth, async (req, res) => {
     }
 });
 
-router.get('/notes/Read', auth, async (req, res) => {
+noteRouters.get('/notes/Read', auth, async (req, res) => {
     try {
         let id = new ObjectId(req.body.id);
         let note = await noteService.readNote({ _id: id, userId: req.user._id });
@@ -32,7 +30,7 @@ router.get('/notes/Read', auth, async (req, res) => {
     }
 });
 
-router.get('/notes/Reads', auth, async (req, res) => {
+noteRouters.get('/notes/Reads', auth, async (req, res) => {
     try {
         let ids = req.body.ids.map(id => new ObjectId(id));
         let note = await noteService.readNotes(ids, req.user._id );
@@ -42,7 +40,7 @@ router.get('/notes/Reads', auth, async (req, res) => {
     }
 });
 
-router.patch('/notes/update', auth, async (req, res) => {
+noteRouters.patch('/notes/update', auth, async (req, res) => {
     try {
         let id = new ObjectId(req.body.id);
         delete req.body.id;
@@ -56,7 +54,7 @@ router.patch('/notes/update', auth, async (req, res) => {
     }
 });
 
-router.delete('/notes/delete', auth, async (req, res) => {
+noteRouters.delete('/notes/delete', auth, async (req, res) => {
     try {
         let id = new ObjectId(req.body.id);
         await noteService.deleteNote({ _id: req.user._id, _id: id });
@@ -67,7 +65,7 @@ router.delete('/notes/delete', auth, async (req, res) => {
     }
 });
 
-router.delete('/notes/deletes', auth, async (req, res) => {
+noteRouters.delete('/notes/deletes', auth, async (req, res) => {
     try {
         let ids = req.body.ids.map(id => new ObjectId(id));
         await noteService.deleteNotes(ids, req.user._id );
@@ -77,5 +75,4 @@ router.delete('/notes/deletes', auth, async (req, res) => {
     }
 });
 
-
-module.exports = router;
+module.exports = noteRouters;

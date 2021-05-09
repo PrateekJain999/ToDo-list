@@ -1,8 +1,7 @@
 "use strict";
 
 const express = require('express');
-const userRoutes = require('../routes/userRoute');
-const noteRoutes = require('../routes/noteRoute');
+const {userRoutes, noteRoutes} = require('../routes/index');
 
 module.exports = async function (app) {
 
