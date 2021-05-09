@@ -24,7 +24,7 @@ router.post('/users/signup', joiValidation, async (req, res) => {
 
 router.post('/users/login', async (req, res) => {
     try {
-        const user = await userService.getUser({ email: req.body.email });
+        let user = await userService.getUser({ email: req.body.email });
         let tokens = user.tokens;
 
         if (user) {
@@ -33,10 +33,10 @@ router.post('/users/login', async (req, res) => {
                 const token = commonFunctions.encryptJwt({ _id: user._id.toString() })
                 tokens.push({token});
 
-                await userService.updateUser({ email: user.email }, { tokens });
-
-                // delete user.password;
-                // delete user.tokens;
+                await userService.updateUser({ _id: user._id }, { tokens });
+                
+                delete user.password;
+                delete user.tokens;
 
                 res.json({ user, token })
             }
@@ -55,56 +55,64 @@ router.post('/users/login', async (req, res) => {
 
 router.post('/users/logout', auth, async (req, res) => {
     try {
-        req.user.tokens = req.user.tokens.filter((token) => {
+        tokens = req.user.tokens.filter((token) => {
             return token.token !== req.token
-        })
-        userService.registerUser(req.user)
+        });
 
-        res.send()
+        await userService.updateUser({_id: req.user._id}, {tokens});
+
+        res.json({success: true})
     } catch (e) {
-        res.status(500).send()
+        res.status(500).send(e.message)
     }
 })
 
 router.post('/users/logoutAll', auth, async (req, res) => {
     try {
-        req.user.tokens = []
-        await userService.registerUser(req.user);
-        res.send()
+        tokens = []
+        await userService.updateUser({_id: req.user._id}, {tokens});
+        res.send({success: true});
     } catch (e) {
-        res.status(500).send()
+        res.status(500).send(e.message)
     }
 })
 
 router.get('/users/me', auth, async (req, res) => {
+    
+    delete req.user.password;
+    delete req.user.tokens;
     res.send(req.user)
 })
 
 router.patch('/users/me', auth, async (req, res) => {
+
     const updates = Object.keys(req.body)
     const allowedUpdates = ['firstname', 'lastname', 'email', 'password', 'age', 'gender']
     const isValidOperation = updates.every((update) => allowedUpdates.includes(update))
 
     if (!isValidOperation) {
-        return res.status(400).send({ error: 'Invalid updates!' })
+        return res.status(400).json({ error: 'Invalid updates!' })
     }
 
     try {
-        updates.forEach((update) => req.user[update] = req.body[update])
-        await req.user.save()
-        res.send(req.user)
+        let user = await userService.updateUser({_id: req.user._id}, req.body);
+        
+        delete user.tokens;
+        delete user.password;
+
+        res.json({success: true, user})
     } catch (e) {
-        res.status(400).send(e)
+        res.status(400).send(e.message)
     }
 })
 
 router.delete('/users/me', auth, async (req, res) => {
     try {
-        await req.user.remove()
+        await userService.deleteUser({_id: req.user._id});
         sendMail({ name: `${req.user.firstname} ${req.user.lastname}`, to: req.user.email, text: 'Welcome Back Soon.', subject: 'Account Deleted' });
-        res.send(req.user)
+        res.json({success: true})
     } catch (e) {
-        res.status(500).send()
+        res.status(500).send(e.message)
     }
 })
 

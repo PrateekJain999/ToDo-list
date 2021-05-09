@@ -13,15 +13,21 @@ userService.registerUser = async (payload) => {
  * function to update user.
  */
 userService.updateUser = async (criteria, dataToUpdate) => {
-    // let userData = await userService.getUser(criteria);
-    return await userModel.findOneAndUpdate(criteria, dataToUpdate);
+    return await userModel.findOneAndUpdate(criteria, dataToUpdate).lean();
+};
+
+/**
+ * function to delete user.
+ */
+ userService.deleteUser = async (criteria) => {
+    return await userModel.findOneAndRemove(criteria).lean();
 };
 
 /**
  * function to fetch user from the system based on criteria.
  */
-userService.getUser = async (criteria) => {
-    return await userModel.findOne(criteria)
+userService.getUser = async (criteria, projection={}) => {
+    return await userModel.findOne(criteria, projection).lean();
 };
 
 userService.getUsers = async (criteria) => {

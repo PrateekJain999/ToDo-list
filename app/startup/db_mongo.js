@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const ch = require('chalk')
 
 module.exports = async () => {
     const options = {
@@ -7,5 +8,5 @@ module.exports = async () => {
         useUnifiedTopology: true
     };
     await mongoose.connect(process.env.MONGO_URL, options);
-    console.log('Mongo connected at mongo atlas');
+    console.log(ch.green('Mongo connected at mongo atlas'));
 };

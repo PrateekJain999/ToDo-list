@@ -1,6 +1,7 @@
 require('dotenv').config();
 const EXPRESS = require("express");
 const app = EXPRESS();
+const ch = require('chalk');
 
 const server = require('http').Server(app);
 
@@ -16,8 +17,8 @@ let startNodeserver = async () => {
 };
 
 startNodeserver().then(() => {
-    console.log('Node server running on 4000');
+    console.log(ch.green('Node server running on 4000'));
 }).catch((err) => {
-    console.log('Error in starting server', err);
+    console.log(ch.red(`Error in starting server ${err}`));
     process.exit(1);
 });
