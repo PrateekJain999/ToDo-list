@@ -20,7 +20,27 @@ router.post('/notes/create', auth, async (req, res) => {
     } catch (e) {
         res.status(400).send(e.message)
     }
-})
+});
+
+router.get('/notes/Read', auth, async (req, res) => {
+    try {
+        let id = new ObjectId(req.body.id);
+        let note = await noteService.readNote({ _id: id, userId: req.user._id });
+        res.send({ success: true, note });
+    } catch (e) {
+        res.status(500).send(e.message)
+    }
+});
+
+router.get('/notes/Reads', auth, async (req, res) => {
+    try {
+        let ids = req.body.ids.map(id => new ObjectId(id));
+        let note = await noteService.readNotes(ids, req.user._id );
+        res.send({ success: true, note });
+    } catch (e) {
+        res.status(500).send(e.message)
+    }
+});
 
 router.patch('/notes/update', auth, async (req, res) => {
     try {
@@ -34,7 +54,7 @@ router.patch('/notes/update', auth, async (req, res) => {
         res.status(400).end(e.message)
 
     }
-})
+});
 
 router.delete('/notes/delete', auth, async (req, res) => {
     try {
@@ -45,7 +65,7 @@ router.delete('/notes/delete', auth, async (req, res) => {
     } catch (e) {
         res.status(500).send(e.message)
     }
-})
+});
 
 router.delete('/notes/deletes', auth, async (req, res) => {
     try {
@@ -55,26 +75,7 @@ router.delete('/notes/deletes', auth, async (req, res) => {
     } catch (e) {
         res.status(500).send(e.message)
     }
-})
+});
 
-router.get('/notes/Read', auth, async (req, res) => {
-    try {
-        let id = new ObjectId(req.body.id);
-        let note = await noteService.readNote({ _id: id, userId: req.user._id });
-        res.send({ success: true, note });
-    } catch (e) {
-        res.status(500).send(e.message)
-    }
-})
-
-router.get('/notes/Reads', auth, async (req, res) => {
-    try {
-        let ids = req.body.ids.map(id => new ObjectId(id));
-        let note = await noteService.readNotes(ids, req.user._id );
-        res.send({ success: true, note });
-    } catch (e) {
-        res.status(500).send(e.message)
-    }
-})
 
 module.exports = router;
