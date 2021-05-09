@@ -47,6 +47,16 @@ router.delete('/notes/delete', auth, async (req, res) => {
     }
 })
 
+router.delete('/notes/deletes', auth, async (req, res) => {
+    try {
+        let ids = req.body.ids.map(id => new ObjectId(id));
+        await noteService.deleteNotes(ids, req.user._id );
+        res.send({ success: true });
+    } catch (e) {
+        res.status(500).send(e.message)
+    }
+})
+
 router.get('/notes/Read', auth, async (req, res) => {
     try {
         let id = new ObjectId(req.body.id);

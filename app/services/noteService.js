@@ -23,6 +23,13 @@ noteService.deleteNote = async (criteria) => {
 };
 
 /**
+ * function to delete note.
+ */
+ noteService.deleteNotes = async (ids, userId) => {
+    return await noteModel.remove({_id: {$in: ids}, userId});
+};
+
+/**
  * function to read one note.
  */
 noteService.readNote = async (criteria, projection = {}) => {
