@@ -11,7 +11,7 @@ const auth = async (req, res, next) => {
         const user = await userService.getUser({ _id: decoded._id, 'tokens.token': token });
 
         if (!user) {
-            throw new Error()
+            throw new Error();
         }
 
         req.user = user
