@@ -31,10 +31,10 @@ router.post('/users/login', async (req, res) => {
             if (commonFunctions.compareHash(req.body.password, user.password)) {
 
                 const token = commonFunctions.encryptJwt({ _id: user._id.toString() })
-                tokens.push({token});
+                tokens.push({ token });
 
                 await userService.updateUser({ _id: user._id }, { tokens });
-                
+
                 delete user.password;
                 delete user.tokens;
 
@@ -59,9 +59,9 @@ router.post('/users/logout', auth, async (req, res) => {
             return token.token !== req.token
         });
 
-        await userService.updateUser({_id: req.user._id}, {tokens});
+        await userService.updateUser({ _id: req.user._id }, { tokens });
 
-        res.json({success: true})
+        res.json({ success: true })
     } catch (e) {
         res.status(500).send(e.message)
     }
@@ -70,15 +70,15 @@ router.post('/users/logout', auth, async (req, res) => {
 router.post('/users/logoutAll', auth, async (req, res) => {
     try {
         tokens = []
-        await userService.updateUser({_id: req.user._id}, {tokens});
-        res.send({success: true});
+        await userService.updateUser({ _id: req.user._id }, { tokens });
+        res.send({ success: true });
     } catch (e) {
         res.status(500).send(e.message)
     }
 })
 
 router.get('/users/me', auth, async (req, res) => {
-    
+
     delete req.user.password;
     delete req.user.tokens;
     res.send(req.user)
@@ -95,12 +95,12 @@ router.patch('/users/me', auth, async (req, res) => {
     }
 
     try {
-        let user = await userService.updateUser({_id: req.user._id}, req.body);
-        
+        let user = await userService.updateUser({ _id: req.user._id }, req.body);
+
         delete user.tokens;
         delete user.password;
 
-        res.json({success: true, user})
+        res.json({ success: true, user })
     } catch (e) {
         res.status(400).send(e.message)
     }
@@ -108,9 +108,9 @@ router.patch('/users/me', auth, async (req, res) => {
 
 router.delete('/users/me', auth, async (req, res) => {
     try {
-        await userService.deleteUser({_id: req.user._id});
+        await userService.deleteUser({ _id: req.user._id });
         sendMail({ name: `${req.user.firstname} ${req.user.lastname}`, to: req.user.email, text: 'Welcome Back Soon.', subject: 'Account Deleted' });
-        res.json({success: true})
+        res.json({ success: true })
     } catch (e) {
         res.status(500).send(e.message)
     }
