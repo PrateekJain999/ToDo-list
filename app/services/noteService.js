@@ -12,7 +12,7 @@ noteService.createNote = async (payload) => {
  * function to update note.
  */
 noteService.updateNote = async (criteria, dataToUpdate) => {
-    return await noteModel.findOneAndUpdate(criteria, dataToUpdate).lean();
+    return await noteModel.findOneAndUpdate(criteria, dataToUpdate,{upsert: true, new: true});
 };
 
 /**

@@ -5,6 +5,7 @@ const { auth, joiValidation } = require('../middleware/userMiddleware')
 const sendMail = require('../utils/emailService')
 const commonFunctions = require('../utils/utils');
 const express = require('express');
+const ObjectId = require('mongodb').ObjectId;
 const router = new express.Router()
 
 router.post('/notes/create', auth, async (req, res) => {
@@ -21,44 +22,24 @@ router.post('/notes/create', auth, async (req, res) => {
     }
 })
 
-router.post('/notes/update', auth, async (req, res) => {
+router.patch('/notes/update', auth, async (req, res) => {
     try {
-        let user = await userService.getUser({ email: req.body.email });
-        let tokens = user.tokens;
+        let id = new ObjectId(req.body.id);
+        delete req.body.id;
 
-        if (user) {
-            if (commonFunctions.compareHash(req.body.password, user.password)) {
-
-                const token = commonFunctions.encryptJwt({ _id: user._id.toString() })
-                tokens.push({ token });
-
-                await userService.updateUser({ _id: user._id }, { tokens });
-
-                delete user.password;
-                delete user.tokens;
-
-                res.json({ user, token })
-            }
-            else {
-                throw new Error('password not same');
-            }
-        }
-        else {
-            throw new Error('user not exists');
-        }
+        let note = await noteService.updateNote({_id: id, userId: req.user._id}, req.body);
+        console.log(note)
+        res.json({success: true, note});
     } catch (e) {
         res.status(400).end(e.message)
 
     }
 })
 
-router.post('/notes/delete', auth, async (req, res) => {
+router.delete('/notes/delete', auth, async (req, res) => {
     try {
-        tokens = req.user.tokens.filter((token) => {
-            return token.token !== req.token
-        });
-
-        await userService.updateUser({ _id: req.user._id }, { tokens });
+        let id = new ObjectId(req.body.id);
+        await noteService.deleteNote({ _id: req.user._id , _id: id});
 
         res.json({ success: true })
     } catch (e) {
@@ -66,11 +47,11 @@ router.post('/notes/delete', auth, async (req, res) => {
     }
 })
 
-router.post('/notes/Read', auth, async (req, res) => {
+router.get('/notes/Read', auth, async (req, res) => {
     try {
-        tokens = []
-        await userService.updateUser({ _id: req.user._id }, { tokens });
-        res.send({ success: true });
+        let id = new ObjectId(req.body.id);
+        let note = await noteService.readNote({ _id: id, userId: req.user._id });
+        res.send({ success: true, note });
     } catch (e) {
         res.status(500).send(e.message)
     }
