@@ -3,6 +3,9 @@ const commonFunctions = require('../../utils/utils');
 
 noteService = {};
 
+/**
+ * function to create note.
+ */
 noteService.createNote = async (payload) => {
     return await noteModel(payload).save();
 };
@@ -22,14 +25,14 @@ noteService.deleteNote = async (criteria) => {
 };
 
 /**
- * function to delete note.
+ * function to delete notes.
  */
  noteService.deleteNotes = async (ids, userId) => {
     return await noteModel.remove({_id: {$in: ids}, userId});
 };
 
 /**
- * function to read one note.
+ * function to read note.
  */
 noteService.readNote = async (criteria, projection = {}) => {
     return await noteModel.findOne(criteria, projection).lean();
@@ -38,8 +41,8 @@ noteService.readNote = async (criteria, projection = {}) => {
 /**
  * function to read notes.
  */
-noteService.readNotes = async (ids, userId) => {
-    return await noteModel.aggregate([{$match:{$and: [ {_id: {$in: ids}}, {userId: userId} ] } }])
+noteService.readNotes = async (userId) => {
+    return await noteModel.find(userId);
 
 };
 

@@ -3,6 +3,9 @@ const commonFunctions = require('../../utils/utils');
 
 userService = {};
 
+/**
+ * function to register user.
+ */
 userService.registerUser = async (payload) => {
     // encrypt user's password and store it in the database.
     payload.password = commonFunctions.hashPassword(payload.password);
@@ -13,7 +16,7 @@ userService.registerUser = async (payload) => {
  * function to update user.
  */
 userService.updateUser = async (criteria, dataToUpdate) => {
-    return await userModel.findOneAndUpdate(criteria, dataToUpdate).lean();
+    return await userModel.findOneAndUpdate(criteria, dataToUpdate,{upsert: true, new: true}).lean();
 };
 
 /**
@@ -24,12 +27,15 @@ userService.updateUser = async (criteria, dataToUpdate) => {
 };
 
 /**
- * function to fetch user from the system based on criteria.
+ * function to fetch user with criteria.
  */
 userService.getUser = async (criteria, projection={}) => {
     return await userModel.findOne(criteria, projection).lean();
 };
 
+/**
+ * function to get user.
+ */
 userService.getUsers = async (criteria) => {
     return await userModel.find(criteria)
 };

@@ -4,7 +4,7 @@ const { auth, joiValidation } = require('../../middleware/userMiddleware')
 const sendMail = require('../../utils/emailService')
 const commonFunctions = require('../../utils/utils');
 const express = require('express');
-const userRouters = new express.Router()
+const userRouters = express.Router();
 
 userRouters.post('/users/signup', joiValidation, async (req, res) => {
     try {
@@ -25,11 +25,11 @@ userRouters.post('/users/signup', joiValidation, async (req, res) => {
 userRouters.post('/users/login', async (req, res) => {
     try {
         let user = await userService.getUser({ email: req.body.email });
-        let tokens = user.tokens;
-
+        
         if (user) {
             if (commonFunctions.compareHash(req.body.password, user.password)) {
-
+                let tokens = user.tokens;
+                
                 const token = commonFunctions.encryptJwt({ _id: user._id.toString() })
                 tokens.push({ token });
 

@@ -2,6 +2,7 @@ require('dotenv').config();
 const EXPRESS = require("express");
 const app = EXPRESS();
 const ch = require('chalk');
+const port = process.env.PORT || 4000;
 
 const server = require('http').Server(app);
 
@@ -9,7 +10,7 @@ let startNodeserver = async () => {
     await require('./app/startup/expressStartup')(app);
 
     return new Promise((resolve, reject) => {
-        server.listen(4000, (err) => {
+        server.listen(port, (err) => {
             if (err) reject(err);
             resolve();
         });

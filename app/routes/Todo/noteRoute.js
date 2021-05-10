@@ -4,7 +4,7 @@ const { auth, joiValidation } = require('../../middleware/userMiddleware');
 const {sendMail, joiSchema, commonFunctions} = require('../../utils/index');
 const express = require('express');
 const ObjectId = require('mongodb').ObjectId;
-const noteRouters = new express.Router()
+const noteRouters = express.Router();
 
 noteRouters.post('/notes/create', auth, async (req, res) => {
     try {
@@ -32,8 +32,7 @@ noteRouters.get('/notes/Read', auth, async (req, res) => {
 
 noteRouters.get('/notes/Reads', auth, async (req, res) => {
     try {
-        let ids = req.body.ids.map(id => new ObjectId(id));
-        let note = await noteService.readNotes(ids, req.user._id );
+        let note = await noteService.readNotes({userId: req.user._id});
         res.send({ success: true, note });
     } catch (e) {
         res.status(500).send(e.message)
